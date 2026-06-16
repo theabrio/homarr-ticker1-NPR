@@ -6,14 +6,14 @@
 <style>
   body { 
     margin: 0; 
-    background-color: #1a1a1a; /* Homarr dark mode background */
-    color: #ffffff;            /* White text */
+    background-color: #1a1a1a; 
+    color: #ffffff;            
     font-family: sans-serif; 
     overflow: hidden; 
     display: flex; 
     align-items: center; 
     height: 100%; 
-    min-height: 50px;          /* Prevents iFrame collapse */
+    min-height: 50px;          
   }
   .ticker-container { 
     width: 100%; 
@@ -23,9 +23,17 @@
   .ticker-text { 
     display: inline-block; 
     padding-left: 100%; 
-    animation: ticker 40s linear infinite; 
+    
+    /* Increased from 40s to 120s for a much slower scroll */
+    animation: ticker 120s linear infinite; 
     font-size: 1.2rem; 
   }
+  
+  /* Magic line that pauses the scrolling when you hover your mouse */
+  .ticker-text:hover {
+    animation-play-state: paused;
+  }
+
   .ticker-text span {
     margin-right: 40px;
   }
@@ -42,14 +50,13 @@
 </div>
 
 <script>
-  const rssUrl = 'https://feeds.npr.org/1001/rss.xml';
+  const rssUrl = 'https://moxie.foxnews.com/google-publisher/latest.xml';
   const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
   
   fetch(apiUrl)
     .then(res => res.json())
     .then(data => {
       if (data.status === 'ok' && data.items.length > 0) {
-        // This maps the data into HTML cleanly without a clunky loop
         const headlines = data.items.map(item => `<span>${item.title} &nbsp;&nbsp;&nbsp;&bull;&nbsp;&nbsp;&nbsp;</span>`).join('');
         document.getElementById("ticker").innerHTML = headlines;
       } else {
