@@ -39,31 +39,27 @@
 <div class="ticker-container">
   <div class="ticker-text" id="ticker">Loading latest headlines...</div>
 </div>
-
 <script>
-  // You can change this URL to any RSS feed you like!
   const rssUrl = 'https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml';
   
-  // Using corsproxy.io which is usually more reliable for strict browsers
-  const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(rssUrl);
+  // Using rss2json which Safari usually allows
+  const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
   
-  fetch(proxyUrl)
-    .then(response => response.text())
-    .then(text => {
-      const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(text, "text/xml");
-      const items = xmlDoc.querySelectorAll("item");
+  fetch(apiUrl)
+    .then(response => response.json())
+    .then(data => {
       let html = "";
-      
-      items.forEach(item => {
-        const title = item.querySelector("title").textContent;
-        html += `<span>${title} &nbsp;&nbsp;&nbsp;&bull;&nbsp;&nbsp;&nbsp; </span>`;
-      });
-      
-      document.getElementById("ticker").innerHTML = html;
+      if (data.status === 'ok') {
+        data.items.forEach(item => {
+          html += `<span>${item.title} &nbsp;&nbsp;&nbsp;&bull;&nbsp;&nbsp;&nbsp; </span>`;
+        });
+        document.getElementById("ticker").innerHTML = html;
+      } else {
+        document.getElementById("ticker").innerHTML = "Feed format not supported.";
+      }
     })
     .catch(error => {
-      document.getElementById("ticker").innerHTML = "Still blocked! Try swapping the RSS URL.";
+      document.getElementById("ticker").innerHTML = "Safari is still blocking the connection!";
     });
 </script>
 
